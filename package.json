@@ -1,0 +1,22 @@
+{
+  "name": "ftbot",
+  "version": "1.0.0",
+  "description": "funnyteam.net community battlemetrics bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "author": "sero",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^0.3.0",
+    "axios": "^0.26.1",
+    "bufferutil": "^4.0.6",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "nodemon": "^2.0.15",
+    "utf-8-validate": "^5.0.9"
+  }
+}
