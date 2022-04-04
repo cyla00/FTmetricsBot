@@ -47,7 +47,7 @@ client.on('interactionCreate', async interaction => {
     await interaction.reply('Pong!')
   }
 
-  if (interaction.commandName === 'ban_list') {
+  if (interaction.member.roles.cache.has('960500012884820028') && interaction.commandName === 'ban_list') {
     await Axios.get('https://api.battlemetrics.com/bans', {
         headers: {
             'Authorization': `Bearer ${process.env.AUTH_TOKEN}`
@@ -57,18 +57,24 @@ client.on('interactionCreate', async interaction => {
             var player_info = res.data.data
             var player_array = []
             player_info.forEach(element => {
-                var bans = {
-                    'player' : `id:${element.id} | UID:${element.attributes.uid} | name:${element.meta.player} | reason:${element.attributes.reason} | expiration:${element.attributes.expires}`,
+                if(element.attributes.expires != null){
+                    var bans = [`|${element.meta.player} -> **ID:** ${element.id} | **REASON:** ${element.attributes.reason}\n|**expiration:** ${element.attributes.expires.substring(0, element.attributes.expires.indexOf('T'))}`]
+                    player_array.push(bans)
                 }
-                player_array.push(bans)
+                else{
+                    var bans = [`|${element.meta.player} -> **ID:** ${element.id} | **REASON:** ${element.attributes.reason}\n|**expiration:** ${element.attributes.expires}`]
+                    player_array.push(bans)
+                }
             })
-            console.log(player_array)
-            interaction.reply({content: player_array})
+            interaction.reply({content: `${player_array.join("\n")}`})
         }
         else{
             interaction.reply('sorry the request has failed')
         }
     })
+  }
+  else{
+    interaction.reply('**you do not have permissions**').then(interaction.deleteReply())
   }
 })
 
