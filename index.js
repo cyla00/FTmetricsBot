@@ -4,16 +4,16 @@ var { REST } = require('@discordjs/rest')
 var { Routes } = require('discord-api-types/v9')
 
 var commands = [{
-  name: 'ping',
-  description: 'Replies with Pong!'
-},
-{
-  name: 'ban_list',
+  name: 'bans',
   description: 'shows the list of banned people'
 },
 {
   name: 'server',
   description: 'shows infos about FT squad server'
+},
+{
+  name: 'seed',
+  description: 'sends seeding notification'
 },
 ];
 
@@ -47,18 +47,15 @@ client.on('ready', () => {
 client.on('interactionCreate', async interaction => {
   if (!interaction.isCommand()) return
 
-  if (!interaction.member.roles.cache.has('960500012884820028')){
+  if (!interaction.member.roles.cache.has(process.env.ADMIN_ROLE)){
     interaction.reply('**you do not have permissions**').then(interaction.deleteReply())
-  } 
-
-  if (interaction.commandName === 'ping') {
-    await interaction.reply('Pong!')
   }
 
-
+  // if(!interaction.channelid == `${process.env.ADMIN_CHANNEL}`) return
 
   // FETCHES THE LIST OF BANNED PEOPLE WITH SOME INFORMATION
-  if (interaction.commandName === 'ban_list') {
+  if (interaction.commandName === 'bans') {
+
     await Axios.get('https://api.battlemetrics.com/bans', {
         headers: {
             'Authorization': `Bearer ${process.env.AUTH_TOKEN}`
@@ -96,9 +93,11 @@ client.on('interactionCreate', async interaction => {
 
         if(data.attributes.status == 'online'){
           var server_status_logo = '🟢'
+          var line_color = 0x00cc66 //green
         }
         else{
           var server_status_logo = '🟠'
+          var line_color = 0xff6600 //orange
         }
 
         if(!data.attributes.details.modded){
@@ -109,7 +108,7 @@ client.on('interactionCreate', async interaction => {
         }
 
         var serve_info_embed = {
-          color: 0x05ffa1,
+          color: line_color,
           author: {
             name: 'FT Metrics',
             icon_url: 'https://i.ibb.co/cbTw4jw/gears.png',
@@ -118,14 +117,14 @@ client.on('interactionCreate', async interaction => {
             url: 'https://i.ibb.co/g7SGP0y/wdwd.png',
           },
           fields: [
-            {name: '**Status**', value: `${data.attributes.status} ${server_status_logo}`, inline: false},
-            {name: '**Id**', value: `${data.attributes.id}`, inline: true},
-            {name: '**Server Name**', value: `${data.attributes.name}`, inline: true},
-            {name: '**Rank**', value: `#${data.attributes.rank}`, inline: true},
-            {name: '**Mods**', value: `${mod_status}`, inline: false},
-            {name: '**Gamemode**', value: `${data.attributes.details.gameMode}`, inline: true},
-            {name: '**Map**', value: `${data.attributes.details.map}`, inline: true},
-            {name: '**Players**', value: `${data.attributes.players}/${data.attributes.maxPlayers}+(${data.attributes.details.squad_publicQueue})`, inline: false},
+            {name: '**STATUS**', value: `${data.attributes.status} ${server_status_logo}`, inline: false},
+            {name: '**IS**', value: `${data.attributes.id}`, inline: true},
+            {name: '**SERVER NAME**', value: `${data.attributes.name}`, inline: true},
+            {name: '**RANK**', value: `#${data.attributes.rank}`, inline: true},
+            {name: '**MODS**', value: `${mod_status}`, inline: false},
+            {name: '**GAMEMODE**', value: `${data.attributes.details.gameMode}`, inline: true},
+            {name: '**MAP**', value: `${data.attributes.details.map}`, inline: true},
+            {name: '**PLAYERS**', value: `${data.attributes.players}/${data.attributes.maxPlayers} **waiting:** ${data.attributes.details.squad_publicQueue}`, inline: false},
           ],
           timestamp: new Date(),
           footer: {
@@ -137,15 +136,30 @@ client.on('interactionCreate', async interaction => {
       })
   }
 
+  //INFORMATION ABOUT A PLAYER
+  if(interaction.commandName == `seed`){
+    var channel = client.channels.cache.get(process.env.SEEDING_CHANNEL);
 
+    var seed_media = [
+      'https://cdn.discordapp.com/attachments/959422054799671306/961263729054449734/4_20220403_210105_0003.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/960253356025192558/3_20220403_210105_0002.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/960253355526082580/5_20220403_210105_0004.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961593333740879932/9.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961593334172909568/7.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961593334659444786/8.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961594768683597834/10.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961594769019117588/11.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961594769769906276/12.png',
+      'https://cdn.discordapp.com/attachments/958691166457589790/961594770159980604/13.png',
+    ]
 
+    var media = seed_media[Math.floor(Math.random()*seed_media.length)]
 
-
-
-
-
-
-
+    var seed_message = `@everyone <@&${process.env.SQUAD_ROLE}> we are seeding, jump on our server to play with us!`
+    channel.send({content: seed_message, files: [media]})
+      .then(interaction.reply('done')
+        .then(interaction.deleteReply()))
+  }
 })
 
 
