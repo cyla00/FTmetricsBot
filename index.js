@@ -118,7 +118,7 @@ client.on('interactionCreate', async interaction => {
           },
           fields: [
             {name: '**STATUS**', value: `${data.attributes.status} ${server_status_logo}`, inline: false},
-            {name: '**IS**', value: `${data.attributes.id}`, inline: true},
+            {name: '**ID**', value: `${data.attributes.id}`, inline: true},
             {name: '**SERVER NAME**', value: `${data.attributes.name}`, inline: true},
             {name: '**RANK**', value: `#${data.attributes.rank}`, inline: true},
             {name: '**MODS**', value: `${mod_status}`, inline: false},
@@ -156,7 +156,7 @@ client.on('interactionCreate', async interaction => {
     var media = seed_media[Math.floor(Math.random()*seed_media.length)]
 
     var seed_message = `@everyone <@&${process.env.SQUAD_ROLE}> we are seeding, jump on our server to play with us!`
-    channel.send({content: seed_message, files: [media]})
+    await channel.send({content: seed_message, files: [media]})
       .then(interaction.reply('done')
         .then(interaction.deleteReply()))
   }
